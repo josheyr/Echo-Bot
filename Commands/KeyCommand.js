@@ -13,8 +13,11 @@ module.exports = class KeyCommand extends Command {
     PermissionLevel = PermissionLevel.EVERYONE;
 
     async run(args, context){
-        if(!args[0]) return { error: ErrorMessage.SYNTAX, msg: "Invalid syntax!" };
+        if(!args[0] || args[0].length > 75 || args[0].length < 15) return { error: ErrorMessage.SYNTAX, msg: "Invalid syntax / invalid key format!", hidden: true };
         
+        // check if args[0] is valid base64
+        if(!(new Buffer(args[0], 'base64')).toString('utf8').match(/^[A-Za-z0-9+/]*={0,2}$/)) return { error: ErrorMessage.SYNTAX, msg: "Invalid syntax / invalid key format!", hidden: true };
+
         var userid = context.author.id;
         var user = this.userManager.getUser(userid);
         this.userManager.setUserAPIKey(userid, args[0]);

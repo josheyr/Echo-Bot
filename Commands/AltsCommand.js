@@ -62,33 +62,35 @@ module.exports = class AltsCommand extends Command {
         // check if args[0] is alphanumeric or _
         if (!validateUsername(args[0])) return { error: ErrorMessage.SYNTAX, msg: "Invalid username!", hidden: true};
 
-        var info = await echoUser.getPlayerInfo(args[0])
+        echoUser.getPlayerInfo(args[0]).then(async (info) => {
+            var new_alts = [];
 
-        var new_alts = [];
-
-        if (info) {
-            if (info.alts) {
-                // alts is an array of usernames, validate each one and add them to array "new_alts"
-                for (var i = 0; i < info.alts.length; i++) {
-                    if (validateUsername(info.alts[i])) {
-                        new_alts.push(info.alts[i]);
+            if (info) {
+                if (info.alts) {
+                    // alts is an array of usernames, validate each one and add them to array "new_alts"
+                    for (var i = 0; i < info.alts.length; i++) {
+                        if (validateUsername(info.alts[i])) {
+                            new_alts.push(info.alts[i]);
+                        }
                     }
                 }
             }
-        }
-        // if no alts found, return error
-        if (new_alts.length == 0) {
-            return { error: ErrorMessage.OTHER, msg: `No alts found for \`${args[0]}\``, hidden: true };
-        }
+            // if no alts found, return error
+            if (new_alts.length == 0) {
+                return { error: ErrorMessage.OTHER, msg: `No alts found for \`${args[0]}\``, hidden: true };
+            }
+    
+            const altsEmbed = new Discord.MessageEmbed()
+            .setColor('#293e6a')
+            .setTitle(args[0] + '\'s Alts')
+            .setDescription("```" + new_alts.join("\n") + "```")
+            .setThumbnail('https://cdn.echo.ac/images/avatar.php?account=' + args[0])
+            .setTimestamp()
+            .setFooter(footerText, 'https://cdn.echo.ac/images/echo.png');
+        });
 
-        const altsEmbed = new Discord.MessageEmbed()
-        .setColor('#293e6a')
-        .setTitle(args[0] + '\'s Alts')
-        .setDescription("```" + new_alts.join("\n") + "```")
-        .setThumbnail('https://cdn.echo.ac/images/avatar.php?account=' + args[0])
-        .setTimestamp()
-        .setFooter(footerText, 'https://cdn.echo.ac/images/echo.png');
+       
 
-        return { error: ErrorMessage.SUCCESS, msg: "vvv", embeds: [ altsEmbed ] , hidden: false };
+        return { error: ErrorMessage.SUCCESS, msg: "" , hidden: false };
     }
 }
